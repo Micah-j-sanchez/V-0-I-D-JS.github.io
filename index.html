@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tamper.me - Integrity Checker</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: 'Poppins', Arial, sans-serif;
+      background-color: #1a1a1a;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .top {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 40px;
+      box-sizing: border-box;
+    }
+
+    .bottom {
+      flex: 1;
+      background-color: #222222;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      font-size: 24px;
+    }
+
+    p {
+      font-size: 14px;
+    }
+
+    code {
+      display: block;
+      text-align: left;
+      background-color: #282828;
+      color: #ffffff;
+      padding: 10px;
+      margin: 10px auto;
+      width: 80%;
+      max-width: 800px;
+      overflow-x: scroll;
+    }
+
+    .green {
+      background-color: #00cc88;
+    }
+
+    .red {
+      background-color: #ff4757;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(0, 0, 0, 0.8);
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      position: relative;
+      background-color: #222222;
+      padding: 30px;
+      border-radius: 8px;
+      max-width: 90%;
+      max-height: 90%;
+      overflow-y: auto;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+      color: #ffffff;
+      font-size: 24px;
+    }
+
+    .modal-checkbox {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+    }
+
+    .modal-checkbox input[type="checkbox"] {
+      margin-right: 8px;
+    }
+
+    @media screen and (max-width: 768px) {
+      .top, .bottom {
+        width: 100%;
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      p {
+        font-size: 18px;
+      }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body onload="showModal(); checkTampering()">
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal()">&times;</span>
+      <h2>Welcome to Tamper.me - Integrity Checker</h2>
+      <p>
+        Tamper.me is a powerful tool to monitor the integrity of your website. It checks for any unauthorized modifications or tampering with your website's source code in real-time.
+      </p>
+      <p>
+        The tool runs periodic checks to ensure the integrity of your website, providing you with peace of mind and timely alerts in case of any tampering attempts.
+      </p>
+      <div class="modal-checkbox">
+        <input type="checkbox" id="dontShowAgainCheckbox">
+        <label for="dontShowAgainCheckbox">Don't show again</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="top">
+    <h1>Tamper.me - Integrity Checker</h1>
+    <p id="tamperingStatus"></p>
+    <p id="nextCheckTimer"></p>
+  </div>
+  <div class="bottom">
+    <code id="changeLog"></code>
+  </div>
+
+  <script type="text/javascript">
+    function showModal() {
+      var modal = document.getElementById('modal');
+      modal.classList.add('active');
+    }
+
+    function closeModal() {
+      var modal = document.getElementById('modal');
+      modal.classList.remove('active');
+    }
+
+    function checkTampering() {
+      var excludedElements = [
+        'tamperingStatus',
+        'nextCheckTimer',
+        'changeLog'
+      ];
+
+      var initialSource = document.documentElement.innerHTML;
+      var changeLog = [];
+
+      function displayTamperingStatus() {
+        var tamperingStatus = document.getElementById('tamperingStatus');
+        var nextCheckTimer = document.getElementById('nextCheckTimer');
+
+        if (isTampered()) {
+          tamperingStatus.textContent = 'Tampered';
+          tamperingStatus.className = 'red';
+          document.body.className = 'red';
+        } else {
+          tamperingStatus.textContent = 'Not Tampered';
+          tamperingStatus.className = 'green';
+          document.body.className = 'green';
+        }
+      }
+
+      function isTampered() {
+        var currentSource = document.documentElement.innerHTML;
+        var diff = generateDiff(initialSource, currentSource);
+
+        if (diff) {
+          changeLog.push(diff);
+          var changeLogElement = document.getElementById('changeLog');
+          changeLogElement.textContent = '';
+          for (var i = 0; i < changeLog.length; i++) {
+            var diffCode = document.createElement('code');
+            diffCode.textContent = changeLog[i];
+            changeLogElement.appendChild(diffCode);
+          }
+          return true;
+        }
+
+        return false;
+      }
+
+      function generateDiff(oldSource, newSource) {
+        var diff = '';
+        var oldLines = oldSource.split('\n');
+        var newLines = newSource.split('\n');
+        var lineCount = Math.max(oldLines.length, newLines.length);
+
+        for (var i = 0; i < lineCount; i++) {
+          if (oldLines[i] !== newLines[i] && !isExcludedElement(oldLines[i])) {
+            diff += '+ ' + newLines[i] + '\n';
+          }
+        }
+
+        return diff;
+      }
+
+      function isExcludedElement(line) {
+        return excludedElements.some(function(element) {
+          return line.includes(element);
+        });
+      }
+
+      var observer = new MutationObserver(function(mutationsList) {
+        for (var mutation of mutationsList) {
+          if (mutation.type === 'childList') {
+            for (var node of mutation.addedNodes) {
+              if (node.nodeType === Node.ELEMENT_NODE && !isExcludedElement(node.id)) {
+                displayTamperingStatus();
+                break;
+              }
+            }
+          }
+        }
+      });
+
+      observer.observe(document.documentElement, { subtree: true, childList: true });
+
+      displayTamperingStatus();
+
+      var remainingTime = 3;
+      document.getElementById('nextCheckTimer').textContent = 'Next check in ' + remainingTime + ' seconds';
+
+      var timerIntervalId = setInterval(function() {
+        remainingTime--;
+
+        if (remainingTime <= 0) {
+          remainingTime = 3;
+        }
+
+        document.getElementById('nextCheckTimer').textContent = 'Next check in ' + remainingTime + ' seconds';
+
+        if (remainingTime === 0) {
+          displayTamperingStatus();
+        }
+      }, 1000);
+
+      var dontShowAgainCheckbox = document.getElementById('dontShowAgainCheckbox');
+      dontShowAgainCheckbox.addEventListener('change', function() {
+        if (dontShowAgainCheckbox.checked) {
+          localStorage.setItem('dontShowAgain', 'true');
+        } else {
+          localStorage.removeItem('dontShowAgain');
+        }
+      });
+
+      var dontShowAgain = localStorage.getItem('dontShowAgain');
+      if (dontShowAgain === 'true') {
+        closeModal();
+      }
+    }
+  </script>
+</body>
+</html>
