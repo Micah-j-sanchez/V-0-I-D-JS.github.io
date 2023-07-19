@@ -1,285 +1,360 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Tamper.me - Integrity Checker</title>
-  <style>
-    body {
-      text-align: center;
-      font-family: 'Poppins', Arial, sans-serif;
-      background-color: #1a1a1a;
-      color: #ffffff;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    .top {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 40px;
-      box-sizing: border-box;
-    }
-
-    .bottom {
-      flex: 1;
-      background-color: #222222;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-
-    h1 {
-      font-size: 24px;
-    }
-
-    p {
-      font-size: 14px;
-    }
-
-    code {
-      display: block;
-      text-align: left;
-      background-color: #282828;
-      color: #ffffff;
-      padding: 10px;
-      margin: 10px auto;
-      width: 80%;
-      max-width: 800px;
-      overflow-x: scroll;
-    }
-
-    .green {
-      background-color: #00cc88;
-    }
-
-    .red {
-      background-color: #ff4757;
-    }
-
-    .modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: rgba(0, 0, 0, 0.8);
-      z-index: 9999;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s ease;
-    }
-
-    .modal.active {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .modal-content {
-      position: relative;
-      background-color: #222222;
-      padding: 30px;
-      border-radius: 8px;
-      max-width: 90%;
-      max-height: 90%;
-      overflow-y: auto;
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      cursor: pointer;
-      color: #ffffff;
-      font-size: 24px;
-    }
-
-    .modal-checkbox {
-      margin-top: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffff;
-    }
-
-    .modal-checkbox input[type="checkbox"] {
-      margin-right: 8px;
-    }
-
-    @media screen and (max-width: 768px) {
-      .top, .bottom {
-        width: 100%;
-        padding: 20px;
-      }
-
-      h1 {
-        font-size: 28px;
-      }
-
-      p {
-        font-size: 18px;
-      }
-    }
-  </style>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
-</head>
-<body onload="showModal(); checkTampering()">
-  <div class="modal" id="modal">
-    <div class="modal-content">
-      <span class="modal-close" onclick="closeModal()">&times;</span>
-      <h2>Welcome to Tamper.me - Integrity Checker</h2>
-      <p>
-        Tamper.me is a powerful tool to monitor the integrity of your website. It checks for any unauthorized modifications or tampering with your website's source code in real-time.
-      </p>
-      <p>
-        The tool runs periodic checks to ensure the integrity of your website, providing you with peace of mind and timely alerts in case of any tampering attempts.
-      </p>
-      <div class="modal-checkbox">
-        <input type="checkbox" id="dontShowAgainCheckbox">
-        <label for="dontShowAgainCheckbox">Don't show again</label>
-      </div>
-    </div>
-  </div>
-
-  <div class="top">
-    <h1>Tamper.me - Integrity Checker</h1>
-    <p id="tamperingStatus"></p>
-    <p id="nextCheckTimer"></p>
-  </div>
-  <div class="bottom">
-    <code id="changeLog"></code>
-  </div>
-
-  <script type="text/javascript">
-    function showModal() {
-      var modal = document.getElementById('modal');
-      modal.classList.add('active');
-    }
-
-    function closeModal() {
-      var modal = document.getElementById('modal');
-      modal.classList.remove('active');
-    }
-
-    function checkTampering() {
-      var excludedElements = [
-        'tamperingStatus',
-        'nextCheckTimer',
-        'changeLog'
-      ];
-
-      var initialSource = document.documentElement.innerHTML;
-      var changeLog = [];
-
-      function displayTamperingStatus() {
-        var tamperingStatus = document.getElementById('tamperingStatus');
-        var nextCheckTimer = document.getElementById('nextCheckTimer');
-
-        if (isTampered()) {
-          tamperingStatus.textContent = 'Tampered';
-          tamperingStatus.className = 'red';
-          document.body.className = 'red';
-        } else {
-          tamperingStatus.textContent = 'Not Tampered';
-          tamperingStatus.className = 'green';
-          document.body.className = 'green';
-        }
-      }
-
-      function isTampered() {
-        var currentSource = document.documentElement.innerHTML;
-        var diff = generateDiff(initialSource, currentSource);
-
-        if (diff) {
-          changeLog.push(diff);
-          var changeLogElement = document.getElementById('changeLog');
-          changeLogElement.textContent = '';
-          for (var i = 0; i < changeLog.length; i++) {
-            var diffCode = document.createElement('code');
-            diffCode.textContent = changeLog[i];
-            changeLogElement.appendChild(diffCode);
-          }
-          return true;
+    <title>Landing Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: "Source Code Pro", monospace;
+            margin: 0;
+            padding: 0;
         }
 
-        return false;
-      }
-
-      function generateDiff(oldSource, newSource) {
-        var diff = '';
-        var oldLines = oldSource.split('\n');
-        var newLines = newSource.split('\n');
-        var lineCount = Math.max(oldLines.length, newLines.length);
-
-        for (var i = 0; i < lineCount; i++) {
-          if (oldLines[i] !== newLines[i] && !isExcludedElement(oldLines[i])) {
-            diff += '+ ' + newLines[i] + '\n';
-          }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #111;
         }
 
-        return diff;
-      }
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00ff00;
+            text-decoration: none;
+        }
 
-      function isExcludedElement(line) {
-        return excludedElements.some(function(element) {
-          return line.includes(element);
-        });
-      }
+        .navbar-toggle {
+            display: none;
+            cursor: pointer;
+            padding: 5px;
+            background-color: transparent;
+            border: none;
+        }
 
-      var observer = new MutationObserver(function(mutationsList) {
-        for (var mutation of mutationsList) {
-          if (mutation.type === 'childList') {
-            for (var node of mutation.addedNodes) {
-              if (node.nodeType === Node.ELEMENT_NODE && !isExcludedElement(node.id)) {
-                displayTamperingStatus();
-                break;
-              }
+        .navbar-toggle:focus {
+            outline: none;
+        }
+
+        .navbar-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            margin-bottom: 5px;
+            background-color: #00ff00;
+        }
+
+        .navbar-links {
+            list-style: none;
+            display: flex;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar-link {
+            margin-right: 20px;
+        }
+
+        .navbar-link a {
+            color: #00ff00;
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .navbar-links {
+                display: none;
             }
-          }
+
+            .navbar-toggle {
+                display: block;
+            }
+
+            .navbar-links.active {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 80px;
+                left: 20px;
+                right: 20px;
+                background-color: #111;
+                z-index: 9999;
+            }
+
+            .navbar-link {
+                margin-bottom: 10px;
+            }
         }
-      });
 
-      observer.observe(document.documentElement, { subtree: true, childList: true });
-
-      displayTamperingStatus();
-
-      var remainingTime = 3;
-      document.getElementById('nextCheckTimer').textContent = 'Next check in ' + remainingTime + ' seconds';
-
-      var timerIntervalId = setInterval(function() {
-        remainingTime--;
-
-        if (remainingTime <= 0) {
-          remainingTime = 3;
+        .hero {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #111;
         }
 
-        document.getElementById('nextCheckTimer').textContent = 'Next check in ' + remainingTime + ' seconds';
-
-        if (remainingTime === 0) {
-          displayTamperingStatus();
+        .terminal-line {
+            white-space: nowrap;
+            overflow: hidden;
+            border-right: 2px solid #00ff00;
+            animation: blink-caret 1s step-end infinite;
         }
-      }, 1000);
 
-      var dontShowAgainCheckbox = document.getElementById('dontShowAgainCheckbox');
-      dontShowAgainCheckbox.addEventListener('change', function() {
-        if (dontShowAgainCheckbox.checked) {
-          localStorage.setItem('dontShowAgain', 'true');
-        } else {
-          localStorage.removeItem('dontShowAgain');
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: #00ff00; }
         }
-      });
 
-      var dontShowAgain = localStorage.getItem('dontShowAgain');
-      if (dontShowAgain === 'true') {
-        closeModal();
-      }
-    }
-  </script>
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .cta-button {
+            opacity: 0;
+            margin: 0 10px;
+            padding: 10px 20px;
+            color: #00ff00;
+            background-color: transparent;
+            border: 2px solid #00ff00;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, opacity 0.5s ease, transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .cta-button:hover {
+            background-color: #00ff00;
+            color: #000;
+            transform: scale(1.05);
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .section {
+            padding: 50px;
+            background-color: #222;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #00ff00;
+        }
+
+        .section-content {
+            text-align: justify;
+            font-size: 18px;
+            line-height: 1.6;
+            color: #fff;
+        }
+
+        #typewriter-text {
+            font-size: 32px;
+            color: #00ff00;
+        }
+
+        #prompt {
+            font-size: 32px;
+            color: #00ff00;
+        }
+
+        .project-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            margin-top: 30px;
+        }
+
+        .project-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 20px;
+            padding: 10px;
+            color: #00ff00;
+            background-color: transparent;
+            border: 2px solid #00ff00;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+            flex: 1;
+            max-width: 250px;
+        }
+
+        .project-button:hover {
+            background-color: #00ff00;
+            color: #000;
+            transform: scale(1.05);
+        }
+
+        .project-button img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+            object-fit: contain;
+            border-radius: 5px;
+        }
+
+        .project-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .project-description {
+            font-size: 14px;
+            color: #fff;
+        }
+
+        .view-all-projects {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .view-all-projects a {
+            color: #00ff00;
+            text-decoration: none;
+            border: 2px solid #00ff00;
+            border-radius: 5px;
+            padding: 10px 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .view-all-projects a:hover {
+            background-color: #00ff00;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="#" class="navbar-brand">Your Name</a>
+        <button class="navbar-toggle" onclick="toggleNavbar()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <ul class="navbar-links" id="navbar-links">
+            <li class="navbar-link"><a href="#">Home</a></li>
+            <li class="navbar-link"><a href="#about">About</a></li>
+            <li class="navbar-link"><a href="#projects">Projects</a></li>
+            <li class="navbar-link"><a href="#">Contact</a></li>
+        </ul>
+    </div>
+
+    <div class="hero">
+        <div class="terminal-line">
+            <span id="prompt">&gt;_</span>
+            <span id="typewriter-text"></span>
+        </div>
+
+        <div class="cta-buttons">
+            <button class="cta-button" onclick="scrollToAbout()">About Me</button>
+            <button class="cta-button" onclick="scrollToProjects()">Projects</button>
+        </div>
+    </div>
+
+    <div class="section" id="about">
+        <h2 class="section-title">About Me</h2>
+        <div class="section-content">
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam semper purus ut felis consequat, vitae posuere nunc fringilla. Mauris vitae nibh arcu. Duis efficitur sem a nibh consectetur, sed egestas est tincidunt. Aliquam erat volutpat. Integer a lacus ipsum. Integer dapibus, orci vitae fermentum sagittis, ipsum felis ultrices felis, vitae ultrices ipsum odio a urna. Vivamus suscipit varius ultrices. Ut malesuada elit sapien, sit amet commodo ante facilisis et. Mauris faucibus congue felis, sed interdum turpis pellentesque ut. Nulla non orci vitae sem laoreet eleifend.
+            </p>
+            <p>
+                Vivamus id velit ac elit interdum ultricies. Quisque cursus, quam non vehicula feugiat, dui orci tristique ex, at ullamcorper nibh libero in risus. Vestibulum lacinia quam a elit condimentum, sed gravida ante tincidunt. In hac habitasse platea dictumst. Integer mattis scelerisque velit, nec semper metus vehicula in. Mauris a aliquet erat. Morbi bibendum tristique malesuada. Integer eu felis id diam tristique euismod.
+            </p>
+            <p>
+                Phasellus vehicula libero non vestibulum vulputate. Duis vel fermentum tortor. Nullam feugiat vulputate mi, ut consectetur nisi tempus nec. Vivamus vehicula ante a augue commodo, nec laoreet sapien cursus. Sed vulputate enim ut mi tincidunt bibendum. Nam semper metus vel leo varius interdum. Sed in mauris a mi consectetur tempor id id magna. Nulla aliquam consequat turpis, sit amet pellentesque arcu laoreet at. Donec interdum, sem sed congue facilisis, quam erat suscipit nunc, ac vestibulum elit ex ut leo.
+            </p>
+            <p>
+                Sed tempus nunc quis commodo vestibulum. Nullam sit amet mi tristique, eleifend ligula at, venenatis ex. Sed feugiat est non odio ultricies, ut tempus elit tempor. Nulla facilisi. Maecenas suscipit mi sed nibh posuere malesuada. Curabitur egestas risus vel mauris condimentum dignissim. Vivamus ut interdum ex. Proin pellentesque tellus in ante posuere, non scelerisque arcu auctor.
+            </p>
+        </div>
+    </div>
+
+    <div class="section" id="projects">
+        <h2 class="section-title">Projects</h2>
+        <div class="project-buttons">
+            <button class="project-button">
+                <img src="image1.png" alt="Project 1">
+                <h3 class="project-title">Project 1</h3>
+                <p class="project-description">Description of Project 1</p>
+            </button>
+            <button class="project-button">
+                <img src="image2.png" alt="Project 2">
+                <h3 class="project-title">Project 2</h3>
+                <p class="project-description">Description of Project 2</p>
+            </button>
+            <button class="project-button">
+                <img src="image3.png" alt="Project 3">
+                <h3 class="project-title">Project 3</h3>
+                <p class="project-description">Description of Project 3</p>
+            </button>
+        </div>
+        <div class="view-all-projects">
+            <a href="projects.html">View All Projects</a>
+        </div>
+    </div>
+
+    <script>
+        const text = "Hello, I'm V0ID.JS";
+        const delayAfterComma = 500; // Delay in milliseconds after the comma
+
+        let currentCharacter = 0;
+        let output = "";
+
+        function typeWriter() {
+            if (currentCharacter < text.length) {
+                if (text[currentCharacter] === ',') {
+                    output += ',';
+                    document.getElementById('typewriter-text').innerHTML = output;
+                    currentCharacter++;
+
+                    setTimeout(typeWriter, delayAfterComma);
+                } else {
+                    output += text[currentCharacter];
+                    document.getElementById('typewriter-text').innerHTML = output;
+                    currentCharacter++;
+
+                    setTimeout(typeWriter, 100);
+                }
+            } else {
+                const ctaButtons = document.querySelectorAll('.cta-button');
+                ctaButtons.forEach(button => {
+                    button.style.animation = "fade-in 1s ease 0s forwards";
+                });
+            }
+        }
+
+        // Start typing after a slight delay
+        setTimeout(typeWriter, 1000);
+
+        function scrollToAbout() {
+            const aboutSection = document.getElementById('about');
+            aboutSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function scrollToProjects() {
+            const projectsSection = document.getElementById('projects');
+            projectsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function toggleNavbar() {
+            const navbarLinks = document.getElementById('navbar-links');
+            navbarLinks.classList.toggle('active');
+        }
+    </script>
 </body>
 </html>
